@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://localhost:5000/login", {
+    const response = await fetch("http://localhost:3306/Login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
@@ -16,9 +17,10 @@ const Login = () => {
     if (response.ok) {
       const { token } = await response.json();
       localStorage.setItem("token", token);
-      navigate("/dashboard");
+      navigate("/Home");
     } else {
-      alert("Login failed!");
+      const errorMessage = await response.text();
+      alert(`Login failed: ${errorMessage}`);
     }
   };
 
@@ -30,18 +32,20 @@ const Login = () => {
           type="email"
           placeholder="Email"
           value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          onChange={(e) => setForm({ ...form, email: e.target.value })} required
         />
+        {errors.email && <span>{errors.email}</span>}<br />
         <input
           type="password"
           placeholder="Password"
           value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          onChange={(e) => setForm({ ...form, password: e.target.value })} required
         />
+        {errors.password && <span>{errors.password}</span>}<br />
         <button type="submit">Login</button>
       </form>
     </div>
   );
 };
 
-export default Login
+export default Login;
